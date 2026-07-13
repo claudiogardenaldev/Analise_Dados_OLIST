@@ -2,7 +2,7 @@
 
 ## 📌 Sobre o projeto
 
-Este projeto apresenta uma análise exploratória de dados do e-commerce brasileiro **Olist**, utilizando **SQL no PostgreSQL**. O objetivo foi transformar dados relacionais em indicadores de negócio capazes de apoiar decisões sobre vendas, faturamento, categorias de produtos, comportamento regional dos clientes, frete, logística, atrasos nas entregas e satisfação do consumidor.
+Este projeto apresenta uma análise de dados do e-commerce brasileiro **Olist**, utilizando **SQL no PostgreSQL**. O objetivo foi transformar dados relacionais em indicadores de negócio capazes de apoiar decisões sobre vendas, faturamento, categorias de produtos, comportamento regional dos clientes, frete, logística, atrasos nas entregas e satisfação do consumidor.
 
 O projeto foi desenvolvido com foco em portfólio para oportunidades de estágio em dados, demonstrando conhecimentos em **modelagem relacional, tratamento de dados, consultas SQL, criação de views, análise exploratória e geração de insights de negócio**.
 
