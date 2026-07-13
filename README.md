@@ -139,7 +139,7 @@ Foram analisados:
 
 O faturamento mensal permite acompanhar a evolução das vendas ao longo do tempo, identificando períodos de crescimento, queda ou estabilidade.
 
-![Faturamento Mensal](images/6621044c-ab3e-443d-8eee-22e8a595186a.png)
+![Faturamento Mensal](6621044c-ab3e-443d-8eee-22e8a595186a.png)
 
 ---
 
@@ -147,7 +147,7 @@ O faturamento mensal permite acompanhar a evolução das vendas ao longo do temp
 
 A análise por categoria mostra quais segmentos de produtos possuem maior participação no faturamento total.
 
-![Top 10 Categorias por Receita](images/8d58e7b1-b710-45d6-8804-aa21672eb080.png)
+![Top 10 Categorias por Receita](8d58e7b1-b710-45d6-8804-aa21672eb080.png)
 
 ---
 
@@ -163,7 +163,7 @@ A análise geográfica permite identificar os estados com maior concentração d
 
 A comparação entre data real de entrega e data estimada permite avaliar a eficiência logística da operação.
 
-![Pedidos no Prazo vs Atrasados](images/5baf52b9-5050-4823-8cc6-d9771b7da242.png)
+![Pedidos no Prazo vs Atrasados](5baf52b9-5050-4823-8cc6-d9771b7da242.png)
 
 ---
 
