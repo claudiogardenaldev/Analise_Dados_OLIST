@@ -155,7 +155,7 @@ A análise por categoria mostra quais segmentos de produtos possuem maior partic
 
 A análise geográfica permite identificar os estados com maior concentração de demanda.
 
-![Top 10 Estados por Pedidos](images/6205d0c8-4182-4dc5-912f-dbfc13575245.png)
+![Top 10 Estados por Pedidos](6205d0c8-4182-4dc5-912f-dbfc13575245.png)
 
 ---
 
