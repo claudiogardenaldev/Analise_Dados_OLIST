@@ -1,13 +1,5 @@
--- ============================================================
--- 03_analise_exploratoria.sql
--- Projeto: Olist E-commerce Analytics com SQL
--- Objetivo: análise exploratória para gerar KPIs e insights
--- Banco: PostgreSQL
--- Observação: execute primeiro o arquivo 02_tratamento_qualidade_dados.sql
--- ============================================================
-
-
--- 1. PERÍODO DISPONÍVEL NO DATASET
+```sql
+-- 1. Período disponível no dataset
 
 SELECT
     MIN(order_purchase_timestamp) AS primeira_compra,
@@ -15,18 +7,22 @@ SELECT
 FROM olist_orders;
 
 
--- 2. DISTRIBUIÇÃO DOS PEDIDOS POR STATUS
+-- 2. Distribuição dos pedidos por status
 
 SELECT
     order_status,
     COUNT(*) AS total_pedidos,
-    ROUND(COUNT(*)::numeric / (SELECT COUNT(*) FROM olist_orders) * 100, 2) AS percentual
+    ROUND(
+        COUNT(*)::numeric /
+        (SELECT COUNT(*) FROM olist_orders) * 100,
+        2
+    ) AS percentual
 FROM olist_orders
 GROUP BY order_status
 ORDER BY total_pedidos DESC;
 
 
--- 3. KPIs GERAIS DO E-COMMERCE
+-- 3. KPIs gerais do e-commerce
 
 SELECT
     COUNT(DISTINCT order_id) AS total_pedidos,
@@ -36,11 +32,15 @@ SELECT
     ROUND(SUM(price)::numeric, 2) AS faturamento_produtos,
     ROUND(SUM(freight_value)::numeric, 2) AS frete_total,
     ROUND(SUM(price + freight_value)::numeric, 2) AS valor_total_pago,
-    ROUND(SUM(price)::numeric / COUNT(DISTINCT order_id), 2) AS ticket_medio
+    ROUND(
+        SUM(price)::numeric /
+        COUNT(DISTINCT order_id),
+        2
+    ) AS ticket_medio
 FROM vw_sales_base;
 
 
--- 4. FATURAMENTO MENSAL
+-- 4. Faturamento mensal
 
 SELECT
     ano,
@@ -50,7 +50,11 @@ SELECT
     ROUND(SUM(freight_value)::numeric, 2) AS frete_total,
     ROUND(SUM(price + freight_value)::numeric, 2) AS valor_total_pago,
     COUNT(DISTINCT order_id) AS total_pedidos,
-    ROUND(SUM(price)::numeric / COUNT(DISTINCT order_id), 2) AS ticket_medio
+    ROUND(
+        SUM(price)::numeric /
+        COUNT(DISTINCT order_id),
+        2
+    ) AS ticket_medio
 FROM vw_sales_base
 GROUP BY
     ano,
@@ -61,7 +65,7 @@ ORDER BY
     mes_numero;
 
 
--- 5. FRETE TOTAL POR MÊS
+-- 5. Frete total por mês
 
 SELECT
     ano,
@@ -78,20 +82,24 @@ ORDER BY
     mes_numero;
 
 
--- 6. TOP 10 CATEGORIAS POR RECEITA
+-- 6. Top 10 categorias por receita
 
 SELECT
     categoria_tratada AS categoria,
     ROUND(SUM(price)::numeric, 2) AS receita,
     COUNT(DISTINCT order_id) AS total_pedidos,
-    ROUND(SUM(price)::numeric / COUNT(DISTINCT order_id), 2) AS ticket_medio
+    ROUND(
+        SUM(price)::numeric /
+        COUNT(DISTINCT order_id),
+        2
+    ) AS ticket_medio
 FROM vw_sales_base
 GROUP BY categoria_tratada
 ORDER BY receita DESC
 LIMIT 10;
 
 
--- 7. TOP 10 ESTADOS POR QUANTIDADE DE PEDIDOS
+-- 7. Top 10 estados por quantidade de pedidos
 
 SELECT
     customer_state AS estado,
@@ -102,26 +110,36 @@ ORDER BY total_pedidos DESC
 LIMIT 10;
 
 
--- 8. TOP 10 ESTADOS POR FATURAMENTO
+-- 8. Top 10 estados por faturamento
 
 SELECT
     customer_state AS estado,
     ROUND(SUM(price)::numeric, 2) AS faturamento,
     COUNT(DISTINCT order_id) AS total_pedidos,
-    ROUND(SUM(price)::numeric / COUNT(DISTINCT order_id), 2) AS ticket_medio
+    ROUND(
+        SUM(price)::numeric /
+        COUNT(DISTINCT order_id),
+        2
+    ) AS ticket_medio
 FROM vw_sales_base
 GROUP BY customer_state
 ORDER BY faturamento DESC
 LIMIT 10;
 
 
--- 9. FRETE COMO PERCENTUAL DO FATURAMENTO POR ESTADO
+-- 9. Frete como percentual do faturamento por estado
 
 SELECT
     customer_state AS estado,
     ROUND(SUM(price)::numeric, 2) AS faturamento,
     ROUND(SUM(freight_value)::numeric, 2) AS frete_total,
-    ROUND((SUM(freight_value)::numeric / NULLIF(SUM(price)::numeric, 0)) * 100, 2) AS percentual_frete_sobre_faturamento
+    ROUND(
+        (
+            SUM(freight_value)::numeric /
+            NULLIF(SUM(price)::numeric, 0)
+        ) * 100,
+        2
+    ) AS percentual_frete_sobre_faturamento
 FROM vw_sales_base
 GROUP BY customer_state
 HAVING COUNT(DISTINCT order_id) >= 100
@@ -129,14 +147,17 @@ ORDER BY percentual_frete_sobre_faturamento DESC
 LIMIT 10;
 
 
--- 10. PEDIDOS NO PRAZO VS ATRASADOS
+-- 10. Pedidos no prazo versus atrasados
 
 SELECT
     status_entrega,
     COUNT(DISTINCT order_id) AS total_pedidos,
     ROUND(
         COUNT(DISTINCT order_id)::numeric /
-        (SELECT COUNT(DISTINCT order_id) FROM vw_orders_delivered) * 100,
+        (
+            SELECT COUNT(DISTINCT order_id)
+            FROM vw_orders_delivered
+        ) * 100,
         2
     ) AS percentual
 FROM vw_orders_delivered
@@ -144,38 +165,48 @@ GROUP BY status_entrega
 ORDER BY total_pedidos DESC;
 
 
--- 11. PERCENTUAL GERAL DE PEDIDOS ATRASADOS
+-- 11. Percentual geral de pedidos atrasados
 
 SELECT
     COUNT(DISTINCT order_id) AS total_pedidos_entregues,
-    COUNT(DISTINCT CASE
-        WHEN status_entrega = 'Atrasado'
-        THEN order_id
-    END) AS pedidos_atrasados,
-    ROUND(
-        COUNT(DISTINCT CASE
+    COUNT(
+        DISTINCT CASE
             WHEN status_entrega = 'Atrasado'
             THEN order_id
-        END)::numeric / COUNT(DISTINCT order_id) * 100,
+        END
+    ) AS pedidos_atrasados,
+    ROUND(
+        COUNT(
+            DISTINCT CASE
+                WHEN status_entrega = 'Atrasado'
+                THEN order_id
+            END
+        )::numeric /
+        COUNT(DISTINCT order_id) * 100,
         2
     ) AS percentual_pedidos_atrasados
 FROM vw_orders_delivered;
 
 
--- 12. TOP 10 ESTADOS COM MAIOR PERCENTUAL DE ATRASO
+-- 12. Top 10 estados com maior percentual de atraso
 
 SELECT
     c.customer_state AS estado,
     COUNT(DISTINCT o.order_id) AS total_pedidos,
-    COUNT(DISTINCT CASE
-        WHEN o.status_entrega = 'Atrasado'
-        THEN o.order_id
-    END) AS pedidos_atrasados,
-    ROUND(
-        COUNT(DISTINCT CASE
+    COUNT(
+        DISTINCT CASE
             WHEN o.status_entrega = 'Atrasado'
             THEN o.order_id
-        END)::numeric / COUNT(DISTINCT o.order_id) * 100,
+        END
+    ) AS pedidos_atrasados,
+    ROUND(
+        COUNT(
+            DISTINCT CASE
+                WHEN o.status_entrega = 'Atrasado'
+                THEN o.order_id
+            END
+        )::numeric /
+        COUNT(DISTINCT o.order_id) * 100,
         2
     ) AS percentual_atraso
 FROM vw_orders_delivered o
@@ -187,11 +218,14 @@ ORDER BY percentual_atraso DESC
 LIMIT 10;
 
 
--- 13. TEMPO MÉDIO DE ENTREGA POR ESTADO
+-- 13. Tempo médio de entrega por estado
 
 SELECT
     c.customer_state AS estado,
-    ROUND(AVG(o.dias_entrega)::numeric, 2) AS tempo_medio_entrega_dias,
+    ROUND(
+        AVG(o.dias_entrega)::numeric,
+        2
+    ) AS tempo_medio_entrega_dias,
     COUNT(DISTINCT o.order_id) AS total_pedidos
 FROM vw_orders_delivered o
 JOIN olist_customers c
@@ -202,18 +236,25 @@ ORDER BY tempo_medio_entrega_dias DESC
 LIMIT 10;
 
 
--- 14. DISTRIBUIÇÃO DAS AVALIAÇÕES
+-- 14. Distribuição das avaliações
 
 SELECT
     review_score,
     COUNT(*) AS total_avaliacoes,
-    ROUND(COUNT(*)::numeric / (SELECT COUNT(*) FROM olist_order_reviews) * 100, 2) AS percentual
+    ROUND(
+        COUNT(*)::numeric /
+        (
+            SELECT COUNT(*)
+            FROM olist_order_reviews
+        ) * 100,
+        2
+    ) AS percentual
 FROM olist_order_reviews
 GROUP BY review_score
 ORDER BY review_score;
 
 
--- 15. AVALIAÇÃO MÉDIA POR STATUS DE ENTREGA
+-- 15. Avaliação média por status de entrega
 
 SELECT
     status_entrega,
@@ -224,7 +265,7 @@ GROUP BY status_entrega
 ORDER BY nota_media DESC;
 
 
--- 16. CATEGORIAS COM MAIOR NOTA MÉDIA
+-- 16. Categorias com maior nota média
 
 SELECT
     s.categoria_tratada AS categoria,
@@ -239,7 +280,7 @@ ORDER BY nota_media DESC
 LIMIT 10;
 
 
--- 17. TOP 10 VENDEDORES POR FATURAMENTO
+-- 17. Top 10 vendedores por faturamento
 
 SELECT
     seller_id,
@@ -247,12 +288,14 @@ SELECT
     ROUND(SUM(price)::numeric, 2) AS faturamento,
     COUNT(DISTINCT order_id) AS total_pedidos
 FROM vw_sales_base
-GROUP BY seller_id, seller_state
+GROUP BY
+    seller_id,
+    seller_state
 ORDER BY faturamento DESC
 LIMIT 10;
 
 
--- 18. ESTADOS DOS VENDEDORES COM MAIOR FATURAMENTO
+-- 18. Estados dos vendedores com maior faturamento
 
 SELECT
     seller_state AS estado_vendedor,
@@ -262,3 +305,4 @@ FROM vw_sales_base
 GROUP BY seller_state
 ORDER BY faturamento DESC
 LIMIT 10;
+```
