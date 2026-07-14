@@ -1,9 +1,3 @@
-l-- ============================================================
--- 02_tratamento_qualidade_dados.sql
--- Projeto: Olist E-commerce Analytics com SQL
--- Objetivo: validar qualidade dos dados e criar views tratadas
--- Banco: PostgreSQL
--- ============================================================
 
 -- 1. Contagem de Registros na Tabela
 
