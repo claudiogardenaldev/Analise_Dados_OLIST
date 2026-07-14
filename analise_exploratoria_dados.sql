@@ -1,4 +1,4 @@
-```sql
+
 -- 1. Período disponível no dataset
 
 SELECT
