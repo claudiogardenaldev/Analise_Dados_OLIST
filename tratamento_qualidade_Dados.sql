@@ -1,11 +1,11 @@
--- ============================================================
+l-- ============================================================
 -- 02_tratamento_qualidade_dados.sql
 -- Projeto: Olist E-commerce Analytics com SQL
 -- Objetivo: validar qualidade dos dados e criar views tratadas
 -- Banco: PostgreSQL
 -- ============================================================
 
--- 1. CONTAGEM DE REGISTROS POR TABELA
+-- 1. Contagem de Registros na Tabela
 
 SELECT 'olist_orders' AS tabela, COUNT(*) AS total_linhas FROM olist_orders
 UNION ALL
@@ -22,7 +22,7 @@ UNION ALL
 SELECT 'olist_order_reviews', COUNT(*) FROM olist_order_reviews;
 
 
--- 2. VERIFICAÇÃO DE NULOS EM PEDIDOS
+-- 2. verificacao de nulos em pedidos
 
 SELECT
     COUNT(*) AS total_pedidos,
@@ -37,7 +37,7 @@ SELECT
 FROM olist_orders;
 
 
--- 3. DISTRIBUIÇÃO DOS STATUS DOS PEDIDOS
+-- 3. Distribuição dos status dos pedidos
 
 SELECT
     order_status,
@@ -48,7 +48,7 @@ GROUP BY order_status
 ORDER BY total_pedidos DESC;
 
 
--- 4. PEDIDOS ENTREGUES SEM DATA DE ENTREGA
+-- 4. Pedidos entregues sem data de entrega
 
 SELECT
     COUNT(*) AS pedidos_entregues_sem_data_entrega
@@ -57,7 +57,7 @@ WHERE order_status = 'delivered'
   AND order_delivered_customer_date IS NULL;
 
 
--- 5. VERIFICAÇÃO DE DATAS INCONSISTENTES
+-- 5. Verificação de datas innconsistente
 
 SELECT
     COUNT(*) AS entregas_antes_da_compra
@@ -81,7 +81,7 @@ WHERE order_delivered_carrier_date IS NOT NULL
   AND order_delivered_carrier_date < order_purchase_timestamp;
 
 
--- 6. VERIFICAÇÃO DE PREÇOS E FRETES INVÁLIDOS
+-- 6. Verificação de preços e fretes inválidos
 
 SELECT
     COUNT(*) AS total_itens,
@@ -92,7 +92,7 @@ SELECT
 FROM olist_order_items;
 
 
--- 7. PRODUTOS SEM CATEGORIA
+-- 7. Produtos sem categoria
 
 SELECT
     COUNT(*) AS total_produtos,
@@ -100,7 +100,7 @@ SELECT
 FROM olist_products;
 
 
--- 8. REVIEWS COM CAMPOS NULOS
+-- 8. Reviews com campos nulos
 
 SELECT
     COUNT(*) AS total_reviews,
@@ -114,7 +114,7 @@ SELECT
 FROM olist_order_reviews;
 
 
--- 9. DUPLICIDADES NAS CHAVES PRINCIPAIS
+-- 9. duplicidade nas chaves principais
 
 SELECT
     order_id,
@@ -145,7 +145,7 @@ GROUP BY seller_id
 HAVING COUNT(*) > 1;
 
 
--- 10. VIEW DE PEDIDOS ENTREGUES COM MÉTRICAS LOGÍSTICAS
+-- 10. View de pedidos entregues com métricas logísticas
 
 CREATE OR REPLACE VIEW vw_orders_delivered AS
 SELECT
@@ -182,7 +182,7 @@ WHERE order_status = 'delivered'
   AND order_estimated_delivery_date IS NOT NULL;
 
 
--- 11. VIEW BASE DE VENDAS
+-- 11. View Base de Vendas
 
 CREATE OR REPLACE VIEW vw_sales_base AS
 SELECT
@@ -222,7 +222,7 @@ WHERE o.order_status = 'delivered'
   AND o.order_purchase_timestamp IS NOT NULL;
 
 
--- 12. VIEW DE PAGAMENTOS AGREGADOS POR PEDIDO
+-- 12. VIEW de pagamentos agregados por pedidos
 
 CREATE OR REPLACE VIEW vw_payments_by_order AS
 SELECT
@@ -235,7 +235,7 @@ FROM olist_order_payments
 GROUP BY order_id;
 
 
--- 13. VIEW DE REVIEWS COM STATUS LOGÍSTICO
+-- 13. View de reviews com status logístico
 
 CREATE OR REPLACE VIEW vw_reviews_base AS
 SELECT
