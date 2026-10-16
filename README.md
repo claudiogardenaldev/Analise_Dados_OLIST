@@ -1,306 +1,193 @@
-# Olist E-commerce Analytics com SQL
+<div align="center">
 
-## 📌 Sobre o projeto
+# 🛒 OLIST | E-COMMERCE ANALYTICS
 
-Este projeto apresenta uma análise de dados do e-commerce brasileiro **Olist**, utilizando **SQL no PostgreSQL**. O objetivo foi transformar dados relacionais em indicadores de negócio capazes de apoiar decisões sobre vendas, faturamento, categorias de produtos, comportamento regional dos clientes, frete, logística, atrasos nas entregas e satisfação do consumidor.
+**SQL · PostgreSQL · Data Quality · Business Analytics**
 
-O projeto foi desenvolvido com foco em portfólio para oportunidades de estágio em dados, demonstrando conhecimentos em **modelagem relacional, tratamento de dados, consultas SQL, criação de views, análise exploratória e geração de insights de negócio**.
+Análise relacional de vendas, faturamento, frete e desempenho logístico em pedidos da Olist.
 
----
+![SQL](https://img.shields.io/badge/SQL-111827?style=for-the-badge&logo=postgresql&logoColor=60A5FA)
+![PostgreSQL](https://img.shields.io/badge/POSTGRESQL-111827?style=for-the-badge&logo=postgresql&logoColor=4169E1)
+![Analytics](https://img.shields.io/badge/DATA_ANALYTICS-111827?style=for-the-badge&logo=googleanalytics&logoColor=F9AB00)
+![Data Quality](https://img.shields.io/badge/DATA_QUALITY-111827?style=for-the-badge&logo=checkmarx&logoColor=34D399)
 
-## 🎯 Objetivo da análise
+[**📂 Consultas exploratórias**](./analise_exploratoria_dados.sql) · [**🧹 Qualidade dos dados e views**](./tratamento_qualidade_Dados.sql)
 
-A análise foi construída para responder perguntas como:
-
-* Como o faturamento evoluiu ao longo do tempo?
-* Quais categorias de produtos geram mais receita?
-* Quais estados concentram maior volume de pedidos?
-* Qual é o percentual de pedidos entregues com atraso?
-* Quais estados apresentam maior taxa de atraso?
-* O frete deve ser analisado separado do faturamento?
-* Existe relação entre atraso na entrega e avaliação do cliente?
+</div>
 
 ---
 
-## 🗂️ Dados utilizados
+## 01 / Sobre o projeto
 
-O dataset utilizado foi o **Brazilian E-Commerce Public Dataset by Olist**, composto por tabelas relacionais com informações de pedidos, clientes, produtos, vendedores, pagamentos, itens vendidos e avaliações.
+O **Olist E-commerce Analytics** é um estudo de **análise de dados com SQL e PostgreSQL** baseado no *Brazilian E-Commerce Public Dataset by Olist*. O objetivo é transformar informações distribuídas em várias tabelas relacionais em indicadores que ajudem a investigar vendas, categorias, distribuição geográfica, frete e entregas.
 
-Principais tabelas utilizadas:
+**Perguntas de negócio:**
+- Como o faturamento e o volume de pedidos evoluem ao longo dos meses?
+- Quais categorias e estados concentram maior receita?
+- Qual a participação do frete no valor dos produtos?
+- Qual a proporção de entregas fora do prazo estimado?
+- Quais regiões e vendedores merecem investigação adicional?
 
-| Tabela                 | Descrição                               |
-| ---------------------- | --------------------------------------- |
-| `olist_orders`         | Informações dos pedidos, status e datas |
-| `olist_order_items`    | Itens vendidos, preço, frete e vendedor |
-| `olist_customers`      | Dados dos clientes e localização        |
-| `olist_products`       | Produtos e categorias                   |
-| `olist_sellers`        | Dados dos vendedores                    |
-| `olist_order_payments` | Informações de pagamento                |
-| `olist_order_reviews`  | Avaliações dos pedidos                  |
+> A base representa transações disponibilizadas pela **Olist**, não todo o comércio eletrônico brasileiro.
 
----
-
-## 🧱 Modelagem dos dados
-
-Antes das análises, foi feita a identificação das relações entre as tabelas para evitar erros de duplicidade e garantir consistência nos indicadores.
-
-Principais relacionamentos utilizados:
+## 02 / Fluxo de análise
 
 ```text
-olist_orders.customer_id → olist_customers.customer_id
-
-olist_orders.order_id → olist_order_items.order_id
-
-olist_order_items.product_id → olist_products.product_id
-
-olist_order_items.seller_id → olist_sellers.seller_id
-
-olist_orders.order_id → olist_order_payments.order_id
-
-olist_orders.order_id → olist_order_reviews.order_id
+Dataset Olist (CSV)
+        ↓
+Tabelas relacionais no PostgreSQL
+        ↓
+Validação: nulos, duplicidade, datas, preços e frete
+        ↓
+Views SQL para análise
+        ↓
+KPIs, rankings e séries temporais
+        ↓
+Gráficos e interpretação de negócio
 ```
 
-A tabela `olist_order_items` foi utilizada como base principal para métricas de vendas, pois contém os campos `price` e `freight_value`.
-
----
-
-## 🧹 Tratamento e qualidade dos dados
-
-Antes da análise exploratória, foi realizada uma etapa de validação da qualidade dos dados utilizando SQL.
-
-Foram verificados:
-
-* Quantidade de registros por tabela;
-* Valores nulos em colunas importantes;
-* Duplicidades em chaves principais;
-* Distribuição dos status dos pedidos;
-* Datas inconsistentes;
-* Preços inválidos;
-* Fretes inválidos;
-* Produtos sem categoria;
-* Pedidos entregues sem data de entrega;
-* Pedidos entregues após a data estimada.
-
-Também foram criadas views tratadas para facilitar as análises e evitar repetição excessiva de `JOIN`.
-
-Views criadas:
-
-| View                   | Objetivo                                                                |
-| ---------------------- | ----------------------------------------------------------------------- |
-| `vw_orders_delivered`  | Pedidos entregues com cálculo de tempo de entrega e atraso              |
-| `vw_sales_base`        | Base consolidada de vendas com pedidos, clientes, produtos e vendedores |
-| `vw_payments_by_order` | Pagamentos agregados por pedido                                         |
-| `vw_reviews_base`      | Avaliações cruzadas com informações logísticas                          |
-
----
-
-## 🔎 Análise exploratória
-
-A análise exploratória foi feita diretamente em SQL para entender o comportamento geral do dataset antes da construção dos gráficos.
-
-Foram analisados:
-
-* Período disponível na base;
-* Volume total de pedidos;
-* Quantidade de clientes;
-* Quantidade de produtos vendidos;
-* Quantidade de vendedores;
-* Faturamento total dos produtos;
-* Frete total;
-* Valor total pago pelo cliente;
-* Ticket médio;
-* Faturamento mensal;
-* Receita por categoria;
-* Pedidos por estado;
-* Percentual de atraso;
-* Tempo médio de entrega;
-* Avaliação média por status de entrega.
-
----
-
-## 📊 Indicadores principais
-
-| Indicador               | Cálculo                                                    |
-| ----------------------- | ---------------------------------------------------------- |
-| Faturamento de produtos | `SUM(price)`                                               |
-| Frete total             | `SUM(freight_value)`                                       |
-| Valor total pago        | `SUM(price + freight_value)`                               |
-| Total de pedidos        | `COUNT(DISTINCT order_id)`                                 |
-| Ticket médio            | `SUM(price) / COUNT(DISTINCT order_id)`                    |
-| Tempo médio de entrega  | `order_delivered_customer_date - order_purchase_timestamp` |
-| Percentual de atraso    | Pedidos atrasados / pedidos entregues                      |
-| Nota média              | `AVG(review_score)`                                        |
-
----
-
-## 📈 Visualizações
-
-### Faturamento mensal
-
-O faturamento mensal permite acompanhar a evolução das vendas ao longo do tempo, identificando períodos de crescimento, queda ou estabilidade.
-
-![Faturamento Mensal](6621044c-ab3e-443d-8eee-22e8a595186a.png)
-
----
-
-### Top 10 categorias por receita
-
-A análise por categoria mostra quais segmentos de produtos possuem maior participação no faturamento total.
-
-![Top 10 Categorias por Receita](8d58e7b1-b710-45d6-8804-aa21672eb080.png)
-
----
-
-### Top 10 estados por quantidade de pedidos
-
-A análise geográfica permite identificar os estados com maior concentração de demanda.
-
-![Top 10 Estados por Pedidos](6205d0c8-4182-4dc5-912f-dbfc13575245.png)
-
----
-
-### Pedidos no prazo vs atrasados
-
-A comparação entre data real de entrega e data estimada permite avaliar a eficiência logística da operação.
-
-![Pedidos no Prazo vs Atrasados](5baf52b9-5050-4823-8cc6-d9771b7da242.png)
-
----
-
-## 📌 Principais insights
-
-### 1. O faturamento precisa ser analisado junto ao volume de pedidos
-
-A evolução mensal do faturamento permite identificar o comportamento das vendas ao longo do tempo. Porém, o faturamento isolado não explica completamente o desempenho do negócio. Por isso, também foram analisados total de pedidos e ticket médio.
-
-**Interpretação:**
-Se o faturamento cresce junto com o volume de pedidos, o aumento está relacionado à maior demanda. Se o faturamento cresce sem aumento proporcional de pedidos, pode indicar aumento do ticket médio ou maior venda de produtos mais caros.
-
----
-
-### 2. Algumas categorias concentram maior parte da receita
-
-A análise por categoria mostra que determinados segmentos possuem maior relevância comercial dentro da plataforma.
-
-**Interpretação:**
-Categorias com maior receita devem receber atenção estratégica, pois possuem impacto direto no resultado do e-commerce. Elas podem orientar decisões sobre estoque, campanhas, vendedores e priorização comercial.
-
----
-
-### 3. A demanda está concentrada em poucos estados
-
-A análise por estado do cliente permite identificar onde estão os principais compradores da plataforma.
-
-**Interpretação:**
-Estados com maior quantidade de pedidos representam os mercados mais fortes do e-commerce. Essa informação pode apoiar decisões de marketing regional, expansão e planejamento logístico.
-
----
-
-### 4. Frete deve ser analisado separadamente do faturamento
-
-O faturamento principal foi calculado pela soma da coluna `price`, enquanto o frete foi analisado separadamente pela coluna `freight_value`.
-
-**Interpretação:**
-Separar produto e frete evita distorções no faturamento. O frete representa um componente logístico importante e pode impactar o valor total pago pelo cliente.
-
----
-
-### 5. Atrasos são indicadores importantes de eficiência operacional
-
-A análise de atraso foi feita comparando a data real de entrega com a data estimada.
-
-**Interpretação:**
-Pedidos entregues após a data estimada podem indicar gargalos logísticos, dificuldades regionais ou problemas no prazo informado ao cliente. Esse indicador ajuda a avaliar a qualidade da operação.
-
----
-
-### 6. Atrasos podem afetar a satisfação do cliente
-
-Ao cruzar o status de entrega com as avaliações, é possível verificar se pedidos atrasados apresentam notas médias menores.
-
-**Interpretação:**
-Caso pedidos atrasados tenham avaliação média inferior, isso indica que a logística impacta diretamente a experiência do cliente e deve ser monitorada como parte da estratégia do negócio.
-
----
-
-## 🧾 Arquivos SQL
-
-O projeto contém scripts SQL separados por etapa:
-
-| Arquivo                             | Descrição                                               |
-| ----------------------------------- | ------------------------------------------------------- |
-| `02_tratamento_qualidade_dados.sql` | Verificação de qualidade, tratamento e criação de views |
-| `03_analise_exploratoria.sql`       | Consultas exploratórias, KPIs e análises de negócio     |
-
-Estrutura sugerida:
+### Relacionamentos principais
 
 ```text
-sql/
-├── 02_tratamento_qualidade_dados.sql
-└── 03_analise_exploratoria.sql
+olist_orders.customer_id      → olist_customers.customer_id
+olist_order_items.order_id    → olist_orders.order_id
+olist_order_items.product_id  → olist_products.product_id
+olist_order_items.seller_id   → olist_sellers.seller_id
+olist_order_payments.order_id → olist_orders.order_id
+olist_order_reviews.order_id  → olist_orders.order_id
 ```
 
----
+A granularidade é importante: **um pedido pode ter vários itens e pagamentos**. Por isso, totais por pedido exigem agregação adequada para evitar a multiplicação indevida dos valores em joins.
 
-## 🛠️ Tecnologias utilizadas
+## 03 / Qualidade e preparação dos dados
 
-* PostgreSQL
-* SQL
-* pgAdmin
-* Python
-* Plotly
-* Pandas
-* GitHub
-* Modelagem relacional
-* Análise exploratória de dados
+O script [`tratamento_qualidade_Dados.sql`](./tratamento_qualidade_Dados.sql) contém verificações de:
 
----
+- Contagem de registros e valores nulos;
+- Duplicidades de identificadores em tabelas principais;
+- Status e datas inconsistentes;
+- Preços e fretes inválidos;
+- Produtos sem categoria e avaliações com campos ausentes.
 
-## 📁 Estrutura do repositório
+Também são definidas **quatro views** que organizam a exploração:
+
+| View | Finalidade |
+|:--|:--|
+| `vw_orders_delivered` | Entregas concluídas, tempo de entrega e classificação de atraso |
+| `vw_sales_base` | Itens de pedidos entregues, clientes, produtos, vendedores e datas |
+| `vw_payments_by_order` | Agregação dos pagamentos por pedido |
+| `vw_reviews_base` | Avaliações associadas ao status logístico |
+
+A view `vw_sales_base` filtra **pedidos entregues**. Portanto, os indicadores financeiros construídos sobre ela representam esse recorte, e não necessariamente todos os pedidos criados no dataset.
+
+## 04 / Indicadores de negócio
+
+| Indicador | Definição utilizada |
+|:--|:--|
+| **Faturamento de produtos** | `SUM(price)` |
+| **Frete total** | `SUM(freight_value)` |
+| **Valor de itens + frete** | `SUM(price + freight_value)` |
+| **Total de pedidos** | `COUNT(DISTINCT order_id)` |
+| **Ticket médio de produtos** | `SUM(price) / COUNT(DISTINCT order_id)` |
+| **Taxa de atraso** | Pedidos atrasados ÷ pedidos entregues |
+| **Tempo médio de entrega** | Média dos dias entre compra e entrega ao cliente |
+
+**Nota sobre pagamentos:** `price + freight_value` é o **valor calculado dos itens e frete**. O valor efetivamente registrado nos pagamentos está em `payment_value`, agregado separadamente pela view `vw_payments_by_order`.
+
+### Exemplo de consulta SQL
+
+Trecho do projeto para obter faturamento, frete e ticket médio:
+
+```sql
+SELECT
+    COUNT(DISTINCT order_id) AS total_pedidos,
+    ROUND(SUM(price)::numeric, 2) AS faturamento_produtos,
+    ROUND(SUM(freight_value)::numeric, 2) AS frete_total,
+    ROUND(
+        SUM(price)::numeric / NULLIF(COUNT(DISTINCT order_id), 0),
+        2
+    ) AS ticket_medio
+FROM vw_sales_base;
+```
+
+Veja as demais consultas no arquivo [`analise_exploratoria_dados.sql`](./analise_exploratoria_dados.sql).
+
+## 05 / Visualizações
+
+### 📈 Evolução do faturamento mensal
+
+Acompanhamento do comportamento das vendas ao longo do tempo, útil para identificar sazonalidade e mudanças no volume de negócios.
+
+![Evolução do faturamento mensal](./6621044c-ab3e-443d-8eee-22e8a595186a.png)
+
+### 🏷️ Top 10 categorias por receita
+
+Comparação das categorias com maior participação no valor vendido dos produtos.
+
+![Top 10 categorias por receita](./8d58e7b1-b710-45d6-8804-aa21672eb080.png)
+
+### 📍 Top 10 estados por pedidos
+
+Distribuição geográfica da demanda com contagem distinta de pedidos.
+
+![Top 10 estados por pedidos](./6205d0c8-4182-4dc5-912f-dbfc13575245.png)
+
+### 🚚 Entregas no prazo vs. atrasadas
+
+Classificação de entregas pela comparação entre a data efetiva e a data estimada de chegada ao cliente.
+
+![Pedidos no prazo versus atrasados](./5baf52b9-5050-4823-8cc6-d9771b7da242.png)
+
+## 06 / Aplicações de negócio
+
+| Análise | Possível uso |
+|:--|:--|
+| **Faturamento + pedidos + ticket médio** | Diferenciar crescimento de demanda e crescimento do valor médio por pedido |
+| **Receita por categoria** | Identificar segmentos relevantes para análise comercial |
+| **Frete sobre faturamento** | Investigar diferenças de custo relativo entre estados |
+| **Atraso por região** | Priorizar a análise de problemas logísticos |
+| **Avaliações e entrega** | Explorar associação entre pontualidade e satisfação, quando os dados de reviews estiverem disponíveis |
+
+Essas são **possibilidades de interpretação**, não conclusões causais. Para decisões operacionais, os resultados devem ser confrontados com custos, sazonalidade e outras informações do negócio.
+
+## 07 / Tecnologias e arquivos
+
+**Stack principal:** `PostgreSQL` · `SQL` · `Modelagem relacional` · `Views` · `Análise exploratória` · `Qualidade de dados`
 
 ```text
-olist-ecommerce-sql-analysis/
-│
+Analise_Dados_OLIST/
 ├── README.md
-│
-├── sql/
-│   ├── 02_tratamento_qualidade_dados.sql
-│   └── 03_analise_exploratoria.sql
-│
-├── images/
-│   ├── faturamento_mensal_ao_longo_do_tempo.png
-│   ├── top_10_categorias_por_receita.png
-│   ├── top_10_estados_por_pedidos.png
-│   └── pedidos_no_prazo_e_atrasados.png
-│
-└── docs/
-    └── modelo_relacional.png
+├── tratamento_qualidade_Dados.sql
+├── analise_exploratoria_dados.sql
+├── 6621044c-ab3e-443d-8eee-22e8a595186a.png
+├── 8d58e7b1-b710-45d6-8804-aa21672eb080.png
+├── 6205d0c8-4182-4dc5-912f-dbfc13575245.png
+└── 5baf52b9-5050-4823-8cc6-d9771b7da242.png
 ```
 
----
+### Como reproduzir a análise
 
-## 🚀 Como executar o projeto
+1. Obtenha o [dataset público da Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
+2. Crie o banco PostgreSQL e importe os CSVs nas tabelas esperadas pelos scripts, com prefixo `olist_`.
+3. Execute [`tratamento_qualidade_Dados.sql`](./tratamento_qualidade_Dados.sql) para rodar as verificações e criar as views.
+4. Execute [`analise_exploratoria_dados.sql`](./analise_exploratoria_dados.sql) para consultar KPIs, categorias, estados e entregas.
 
-1. Crie um banco de dados PostgreSQL.
-2. Importe os arquivos CSV do dataset Olist.
-3. Execute o script `02_tratamento_qualidade_dados.sql`.
-4. Execute o script `03_analise_exploratoria.sql`.
-5. Utilize os resultados das consultas para gerar gráficos em Python, Power BI ou outra ferramenta de visualização.
-6. Adicione os gráficos na pasta `images/` para exibição no README.
+**Reprodutibilidade:** o repositório disponibiliza as consultas e visualizações, mas **não contém os CSVs nem scripts de criação/importação das tabelas**. Essas etapas precisam ser preparadas antes de executar os arquivos SQL.
 
----
+## 08 / Próximos passos
 
-## 🧠 Conclusão
-
-Este projeto mostra como SQL pode ser utilizado para transformar dados brutos de um e-commerce em informações úteis para tomada de decisão.
-
-A análise não se limita apenas ao faturamento. Ela considera também categorias, estados, frete, atrasos e avaliações, permitindo uma visão mais completa do desempenho comercial e operacional da plataforma.
-
-Com isso, o projeto demonstra a importância de integrar análise de vendas, logística e satisfação do cliente para gerar insights relevantes para o negócio.
+- [ ] Adicionar scripts de criação das tabelas e importação dos CSVs;
+- [ ] Publicar uma modelagem relacional visual;
+- [ ] Consolidar resultados numéricos das consultas em tabelas reproduzíveis;
+- [ ] Construir um dashboard interativo com filtros de período, estado e categoria;
+- [ ] Explorar avaliações após confirmar a disponibilidade dos dados correspondentes.
 
 ---
 
+<div align="center">
 
-## 🏷️ Tags
+**Cláudio Gardenal** · Data Analytics | SQL | PostgreSQL
 
-`SQL` `PostgreSQL` `Análise de Dados` `Olist` `E-commerce` `Data Analytics` `Modelagem Relacional` `Análise Exploratória` `Portfólio`
+[**GitHub**](https://github.com/claudiogardenaldev)
+
+</div>
